@@ -1,6 +1,8 @@
 package com.flipkart.ecomsystem;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,22 +12,23 @@ import java.util.List;
 public class RechargeController {
 
     @Autowired
-    private RechargeRepository repo;
+    private RechargeService service; // <-- Injects the Service
 
     @PostMapping
-    public Recharge create(@RequestBody Recharge recharge) {
-        recharge.setId(null);
-        // Note: In a real app, you would also update the member's balance here
-        return repo.save(recharge);
+    public ResponseEntity<Recharge> create(@RequestBody Recharge recharge) {
+        Recharge createdRecharge = service.create(recharge);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdRecharge);
     }
 
     @GetMapping
-    public List<Recharge> findAll() {
-        return repo.findAll();
+    public ResponseEntity<List<Recharge>> findAll() {
+        List<Recharge> recharges = service.findAll();
+        return ResponseEntity.ok(recharges);
     }
 
     @GetMapping("/member/{memberId}")
-    public List<Recharge> findByMember(@PathVariable String memberId) {
-        return repo.findByMemberId(memberId);
+    public ResponseEntity<List<Recharge>> findByMemberId(@PathVariable String memberId) {
+        List<Recharge> recharges = service.findByMemberId(memberId);
+        return ResponseEntity.ok(recharges);
     }
 }

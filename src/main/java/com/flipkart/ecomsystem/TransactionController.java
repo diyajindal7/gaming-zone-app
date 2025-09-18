@@ -1,6 +1,8 @@
 package com.flipkart.ecomsystem;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,22 +12,23 @@ import java.util.List;
 public class TransactionController {
 
     @Autowired
-    private TransactionRepository repo;
+    private TransactionService service; // <-- Injects the Service
 
     @PostMapping
-    public Transaction create(@RequestBody Transaction transaction) {
-        transaction.setId(null);
-        // Note: In a real app, you would also deduct the amount from the member's balance
-        return repo.save(transaction);
+    public ResponseEntity<Transaction> create(@RequestBody Transaction transaction) {
+        Transaction createdTransaction = service.create(transaction);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdTransaction);
     }
 
     @GetMapping
-    public List<Transaction> findAll() {
-        return repo.findAll();
+    public ResponseEntity<List<Transaction>> findAll() {
+        List<Transaction> transactions = service.findAll();
+        return ResponseEntity.ok(transactions);
     }
 
     @GetMapping("/member/{memberId}")
-    public List<Transaction> findByMember(@PathVariable String memberId) {
-        return repo.findByMemberId(memberId);
+    public ResponseEntity<List<Transaction>> findByMemberId(@PathVariable String memberId) {
+        List<Transaction> transactions = service.findByMemberId(memberId);
+        return ResponseEntity.ok(transactions);
     }
 }

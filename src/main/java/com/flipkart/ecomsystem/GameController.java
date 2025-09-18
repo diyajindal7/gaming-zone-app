@@ -1,52 +1,46 @@
 package com.flipkart.ecomsystem;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/games")
 public class GameController {
 
     @Autowired
-    private GameRepository repo;
+    private GameService service; // <-- Key change: Inject GameService
 
     @PostMapping
-    public Game create(@RequestBody Game game) {
-        game.setId(null);
-        return repo.save(game);
+    public ResponseEntity<Game> create(@RequestBody Game game) {
+        Game createdGame = service.create(game);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdGame);
     }
 
     @GetMapping
-    public List<Game> findAll() {
-        return repo.findAll();
+    public ResponseEntity<List<Game>> findAll() {
+        List<Game> games = service.findAll();
+        return ResponseEntity.ok(games);
     }
 
     @GetMapping("/{id}")
-    public Game findById(@PathVariable String id) {
-        return repo.findById(id).get();
+    public ResponseEntity<Game> findById(@PathVariable String id) {
+        Game game = service.findById(id);
+        return ResponseEntity.ok(game);
     }
 
     @PutMapping("/{id}")
-    public Game update(@PathVariable String id, @RequestBody Game game) {
-        Game oldGame = repo.findById(id).get();
-        oldGame.setName(game.getName());
-        oldGame.setDescription(game.getDescription());
-        oldGame.setPrice(game.getPrice());
-        oldGame.setGenre(game.getGenre());
-        oldGame.setStatus(game.getStatus());
-        return repo.save(oldGame);
+    public ResponseEntity<Game> update(@PathVariable String id, @RequestBody Game game) {
+        Game updatedGame = service.update(id, game);
+        return ResponseEntity.ok(updatedGame);
     }
 
     @DeleteMapping("/{id}")
-    public boolean delete(@PathVariable String id) {
-        Optional<Game> optionalGame = repo.findById(id);
-        if (optionalGame.isEmpty()) {
-            return false;
-        }
-        repo.deleteById(id);
-        return true;
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
